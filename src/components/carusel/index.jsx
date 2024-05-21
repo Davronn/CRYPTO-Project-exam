@@ -36,9 +36,9 @@ function Carusel() {
           <div className="slider-container w-[1230px] mx-auto">
             <Slider {...settings}>
               {caruselData.map((crypto) => (
-                <div>
+                <div key={crypto.id}>
                   <div
-                    key={crypto.id}
+                    
                     className="carousel-item flex flex-col items-center mt-9"
                   >
                     <img
