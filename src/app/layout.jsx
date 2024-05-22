@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <CryptoProvider>
           <Header />
-          <main>{children}</main>
+          <main style={{backgroundColor:`rgba(24, 25, 27, 1)`}}>{children}</main>
         </CryptoProvider>
       </body>
     </html>
