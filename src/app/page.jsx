@@ -5,6 +5,7 @@ import React, { useContext, useEffect, useState } from "react";
 import "@/styles/home.css";
 import "@/styles/pagenation.css";
 import { CryptoContext } from "./context/CryptoContext";
+import Carusel from "@/components/carusel";
 
 function Home() {
   const {
@@ -19,6 +20,8 @@ function Home() {
     searchTerm,
     addToWatchList,
     watchList,
+    removeFromWatchList,
+    getCryptoById,
   } = useContext(CryptoContext);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -131,118 +134,145 @@ function Home() {
   };
 
   return (
-    <div className="main_bg ">
-      <div className="main">
-        <h1 className="main_title">Cryptocurrency Prices by Market Cap</h1>
-        <input
-          className="search_crypto_input"
-          type="text"
-          placeholder="Search For a Crypto Currency.."
-          value={searchTerm}
-          onChange={(e) => handleSearch(e.target.value)}
-        />
-        <div className="table">
-          <table>
-            <thead>
-              <tr>
-                <th className="w-[445px] text-start px-5 text-[14px] text-black">
-                  Coin
-                </th>
-                <th className="w-[240px] text-right text-[14px] text-black">
-                  Price
-                </th>
-                <th className="w-[258px] text-right text-[14px] text-black">
-                  24h Change
-                </th>
-                <th className="w-[250px] text-right text-[14px] text-black">
-                  Market Cap
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentItems.length > 0 &&
-                currentItems.map((crypto) => (
-                  <tr key={crypto.id} className="tr py-[21px]">
-                    <td className="w-[445px] text-start px-5 items-center">
-                      <div className="flex">
-                        <img
-                          className="w-[50px] h-[50px] inline-block mr-4"
-                          src={crypto.image}
-                          alt={crypto.name}
-                        />
-                        <div className="inline-block">
-                          <div className="text-[20px] text-white">
-                            {crypto.symbol.toUpperCase()}
+    <div>
+      <Carusel />
+      <div className="main_bg">
+        <div className="main">
+          <h1 className="main_title">Cryptocurrency Prices by Market Cap</h1>
+          <input
+            className="search_crypto_input"
+            type="text"
+            placeholder="Search For a Crypto Currency.."
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
+          />
+          <div className="table">
+            <table>
+              <thead>
+                <tr>
+                  <th className="w-[445px] text-start px-5 text-[14px] text-black">
+                    Coin
+                  </th>
+                  <th className="w-[240px] text-right text-[14px] text-black">
+                    Price
+                  </th>
+                  <th className="w-[258px] text-right text-[14px] text-black">
+                    24h Change
+                  </th>
+                  <th className="w-[250px] text-right text-[14px] text-black">
+                    Market Cap
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentItems.length > 0 &&
+                  currentItems.map((crypto) => {
+                    const isAdded = watchList.some(
+                      (item) => item.id === crypto.id
+                    );
+                    return (
+                      <tr
+                        key={crypto.id}
+                        className="tr py-[21px] cursor-pointer"
+                        onClick={() => getCryptoById(crypto.id)}
+                      >
+                        <td className="w-[445px] text-start px-5 items-center">
+                          <div className="flex">
+                            <img
+                              className="w-[50px] h-[50px] inline-block mr-4"
+                              src={crypto.image}
+                              alt={crypto.name}
+                            />
+                            <div className="inline-block">
+                              <div className="text-[20px] text-white">
+                                {crypto.symbol.toUpperCase()}
+                              </div>
+                              <div className="text-[14px]">{crypto.name}</div>
+                            </div>
                           </div>
-                          <div className="text-[14px]">{crypto.name}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="w-[240px] text-right">
-                      <p className="text-[14px] text-white">
-                        {current === "₹"
-                          ? `${current} ${crypto.current_price} `
-                          : current === "$"
-                          ? `${current} ${convertCurrency(
-                              crypto.current_price,
-                              0.012
-                            )} `
-                          : ` ${current} ${convertCurrency(
-                              crypto.current_price,
-                              0.0111
-                            )}`}
-                      </p>
-                    </td>
-                    <td>
-                      <div className="w-[258px] text-right flex justify-end">
-                        <div className="flex justify-end items-center ">
-                          <div
-                            onClick={() => addToWatchList(crypto)}
-                            className="w-[30px] flex justify-start mr-[5px]"
-                          >
-                            add
+                        </td>
+                        <td className="w-[240px] text-right">
+                          <p className="text-[14px] text-white">
+                            {current === "₹"
+                              ? `${current} ${convertCurrency(
+                                  crypto.current_price,
+                                  1
+                                )} `
+                              : current === "$"
+                              ? `${current} ${convertCurrency(
+                                  crypto.current_price,
+                                  0.012
+                                )} `
+                              : ` ${current} ${convertCurrency(
+                                  crypto.current_price,
+                                  0.0111
+                                )}`}
+                          </p>
+                        </td>
+                        <td className="w-[258px] text-right flex justify-end">
+                          <div className="flex justify-end items-center ">
+                            <div className="flex items-center mt-[10px]">
+                              <div
+                                className="w-[50px] flex justify-start mr-[5px]"
+                                onClick={() =>
+                                  isAdded
+                                    ? removeFromWatchList(crypto.id)
+                                    : addToWatchList(crypto)
+                                }
+                              >
+                                <span
+                                  className={`${
+                                    isAdded
+                                      ? "text-green-400 cursor-pointer"
+                                      : "cursor-pointer"
+                                  }`}
+                                >
+                                  ⚆_⚆
+                                </span>
+                              </div>
+                              <div className="w-[50px]">
+                                <p
+                                  className={
+                                    crypto.price_change_percentage_24h > 0
+                                      ? "text-green-600 text-[14px]"
+                                      : "text-red-600 text-[14px]"
+                                  }
+                                >
+                                  {crypto.price_change_percentage_24h > 0
+                                    ? getPriceTrunk(
+                                        `+` + crypto.price_change_percentage_24h
+                                      )
+                                    : getPriceTrunk(
+                                        crypto.price_change_percentage_24h
+                                      )}
+                                  %
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                          <div className="w-[50px]">
-                            <p
-                              className={
-                                crypto.price_change_percentage_24h > 0
-                                  ? "text-green-600 text-[14px]"
-                                  : "text-red-600 text-[14px]"
-                              }
-                            >
-                              {crypto.price_change_percentage_24h > 0
-                                ? getPriceTrunk(
-                                    `+` + crypto.price_change_percentage_24h
-                                  )
-                                : getPriceTrunk(
-                                    crypto.price_change_percentage_24h
-                                  )}
-                              %
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="w-[250px] text-right">
-                      <p className="text-[14px] text-white">
-                        {current === "₹"
-                          ? `${current} ${NumberToMillions(crypto.market_cap)} `
-                          : current === "$"
-                          ? `${current} ${NumberToMillions(
-                              convertMarketCup(crypto.market_cap, 0.012)
-                            )} `
-                          : ` ${current} ${convertMarketCup(
-                              crypto.market_cap,
-                              0.0111,
-                              NumberToMillions(crypto.market_cap)
-                            )}`}
-                      </p>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-          <div className="pagination">{renderPageNumbers()}</div>
+                        </td>
+                        <td className="w-[250px] text-right">
+                          <p className="text-[14px] text-white">
+                            {current === "₹"
+                              ? `${current} ${NumberToMillions(
+                                  crypto.market_cap
+                                )} `
+                              : current === "$"
+                              ? `${current} ${NumberToMillions(
+                                  convertMarketCup(crypto.market_cap, 0.012)
+                                )} `
+                              : ` ${current} ${NumberToMillions(
+                                  convertMarketCup(crypto.market_cap, 0.0111)
+                                )}`}
+                          </p>
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+            <div className="pagination">{renderPageNumbers()}</div>
+          </div>
         </div>
       </div>
     </div>

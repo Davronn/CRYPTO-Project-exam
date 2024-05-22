@@ -12,7 +12,6 @@
   background: rgba(24, 25, 27, 0.3);
   padding: 20px;
   border-radius: 8px;
-  /* box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5); */
 }
 
 .main_title {
@@ -51,32 +50,21 @@ table {
 }
 
 th {
-  background: rgba(135, 206, 235, 1)  ;
+  background: rgba(135, 206, 235, 1);
   padding: 20px;
   color: #ffffff;
   text-align: left;
-
 }
 
 td {
-  background: rgba(22, 23, 26, 1);
   color: #ffffff;
   padding: 20.5px;
 }
 
-
-
-tr:nth-child(even) td {
-  background: rgba(22, 23, 26, 1);
-}
-
 .tr {
-  border-bottom:2px solid #4d4d4d;
-  transition: background-color 0.2s ease;
-}
-
-.tr:hover {
-  background-color: #6d6d6d;
+  background-color:rgb(32, 32, 33);
+  border-bottom: 2px solid #4d4d4d;
+  transition: 0.2s ease;
 }
 
 .pagination {

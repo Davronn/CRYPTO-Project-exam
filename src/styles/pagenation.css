@@ -18,7 +18,7 @@
 }
 
 .pagination_button_disable {
-
+  color: #87cfeb66;
   cursor: not-allowed;
 }
 

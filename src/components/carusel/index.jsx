@@ -7,7 +7,7 @@ import "slick-carousel/slick/slick-theme.css";
 import "@/styles/carusel.css";
 
 function Carusel() {
-  const { caruselData, current, convertCurrency,getPriceTrunk } = useContext(CryptoContext);
+  const { caruselData, current, convertCurrency,getPriceTrunk ,getCryptoById} = useContext(CryptoContext);
   console.log(caruselData);
 
   const settings = {
@@ -36,10 +36,10 @@ function Carusel() {
           <div className="slider-container w-[1230px] mx-auto">
             <Slider {...settings}>
               {caruselData.map((crypto) => (
-                <div key={crypto.id}>
+                <div key={crypto.id} onClick={()=>getCryptoById(crypto.id)}>
                   <div
                     
-                    className="carousel-item flex flex-col items-center mt-9"
+                    className="carousel-item flex flex-col items-center mt-9 cursor-pointer"
                   >
                     <img
                       src={crypto.image}
@@ -66,7 +66,7 @@ function Carusel() {
                       </h3>
                       <p className="text-[21px] text-center text-white">
                         {current === "₹"
-                          ? `${current} ${crypto.current_price} `
+                          ? `${current} ${convertCurrency(crypto.current_price,1)} `
                           : current === "$"
                           ? `${current} ${convertCurrency(
                               crypto.current_price,

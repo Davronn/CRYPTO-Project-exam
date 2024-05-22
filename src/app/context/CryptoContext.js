@@ -1,5 +1,6 @@
 // context/CryptoContext.js
 "use client";
+import { useRouter } from "next/navigation";
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 // Create a Context for the crypto data
@@ -9,10 +10,15 @@ export const CryptoContext = createContext();
 export const CryptoProvider = ({ children }) => {
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState();
-  const [caruselData , setCaruselData] = useState([])
+  const [caruselData, setCaruselData] = useState([]);
   const [current, setCurrent] = useState("₹");
   const [searchTerm, setSearchTerm] = useState("");
   const [watchList, setWatchList] = useState([]);
+  const [openWatchList, setOpenWatchList] = useState(false);
+  const [singleCrypto, setSingleCrypto] = useState({});
+  const [cryptoData, setCryptoData] = useState([]);
+
+  const router = useRouter();
 
   const fetchData = async () => {
     try {
@@ -33,7 +39,7 @@ export const CryptoProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const storedWatchList = localStorage.getItem('watchList');
+    const storedWatchList = localStorage.getItem("watchList");
     if (storedWatchList) {
       setWatchList(JSON.parse(storedWatchList));
     }
@@ -42,17 +48,18 @@ export const CryptoProvider = ({ children }) => {
   const getPriceTrunk = (price) => {
     const parts = price.toString().split(".");
     if (parts.length === 1) {
-      // No decimal part
       return price >= 0 ? "+" + price : price;
     } else {
-      // Truncate to two decimal places
       const truncated = parseFloat(parts[0] + "." + parts[1].slice(0, 2));
       return truncated >= 0 ? "+" + truncated : truncated;
     }
   };
-
   const convertCurrency = (price, rate) => {
-    return (price * rate).toFixed(2);
+    const convertedPrice = price * rate;
+    return new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(convertedPrice);
   };
 
   const NumberToMillions = (num) => {
@@ -77,29 +84,75 @@ export const CryptoProvider = ({ children }) => {
   const handleSearch = (searchTerm) => {
     setSearchTerm(searchTerm);
 
-    if (searchTerm === '') {
+    if (searchTerm === "") {
       setData(originalData); // Reset to original data if search term is empty
     } else {
-      const filteredData = originalData.filter(crypto => 
-        crypto.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        crypto.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+      const filteredData = originalData.filter(
+        (crypto) =>
+          crypto.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          crypto.symbol.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setData(filteredData);
     }
   };
 
   const addToWatchList = (crypto) => {
-    const storedWatchList = localStorage.getItem('watchList');
+    const storedWatchList = localStorage.getItem("watchList");
     const watchList = storedWatchList ? JSON.parse(storedWatchList) : [];
-  
-    if (!watchList.some(item => item.id === crypto.id)) {
+
+    if (!watchList.some((item) => item.id === crypto.id)) {
       const updatedWatchList = [...watchList, crypto];
-  
+
       setWatchList(updatedWatchList);
-      localStorage.setItem('watchList', JSON.stringify(updatedWatchList));
+      localStorage.setItem("watchList", JSON.stringify(updatedWatchList));
     }
   };
 
+  const removeFromWatchList = (cryptoId) => {
+    const updatedWatchList = watchList.filter(
+      (crypto) => crypto.id !== cryptoId
+    );
+    setWatchList(updatedWatchList);
+    localStorage.setItem("watchList", JSON.stringify(updatedWatchList));
+  };
+
+  const handleOpenWatchList = () => {
+    setOpenWatchList(!openWatchList);
+    console.log(openWatchList);
+  };
+
+  const fetchCryptoData = async (id) => {
+    try {
+      const response = await fetch(
+        `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=30`
+      );
+      const data = await response.json();
+      setCryptoData(data.prices);
+    } catch (error) {
+      console.error("Error fetching crypto data:", error);
+    }
+  };
+  const getCryptoById = async (id) => {
+    fetchCryptoData(id);
+    try {
+      const response = await fetch(
+        `https://api.coingecko.com/api/v3/coins/${id}`
+      );
+      const result = await response.json();
+      setSingleCrypto(result);
+      router.push(`/crypto/${id}`);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  
+
+  const trunkDescription = (str, maxLength) => {
+    if (str.length <= maxLength) {
+      return str;
+    }
+    return str.slice(0, maxLength) + "...";
+  };
   return (
     <CryptoContext.Provider
       value={{
@@ -116,6 +169,13 @@ export const CryptoProvider = ({ children }) => {
         addToWatchList,
         watchList,
         caruselData,
+        openWatchList,
+        handleOpenWatchList,
+        removeFromWatchList,
+        getCryptoById,
+        singleCrypto,
+        trunkDescription,
+        cryptoData,
       }}
     >
       {children}
