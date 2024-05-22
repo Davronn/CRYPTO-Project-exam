@@ -75,7 +75,7 @@ const ApexChart = ({ data }) => {
 
   return (
     <div>
-      <ReactApexChart options={options} series={chartData} type="area" width={1108} height={550} />
+      <ReactApexChart options={options} series={chartData} type="area" width={1100} height={550} />
     </div>
   );
 };
